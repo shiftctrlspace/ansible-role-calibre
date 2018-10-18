@@ -1,0 +1,36 @@
+[Unit]
+Description=%I Calibre Web server
+
+[Service]
+User={{ calibre_server_username }}
+Group=nogroup
+UMask=0077
+Type=forking
+RuntimeDirectory=%p
+PIDFile=%t/%p/%i.pid
+{#
+The escape sequence `\x20` is interpreted by systemd as a literal space character.
+#}
+ExecStart=/usr/bin/calibre-server --daemonize --pidfile=%t/%p/%i.pid --with-library={{ item.library_dir | replace(' ', '\\x20') }{% if item.listen_port is defined %} --port={{ item.listen_port | int }}{% endif %}}{% if item.restriction is defined %} --restriction={{ item.restriction | replace(' ', '\\x20') }}{% endif %}
+Restart=on-failure
+# Extra security precautions
+# Calibre is currently incompatible with `MemoryDenyWriteExecute=true`. :(
+#MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+PrivateUsers=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=full
+LockPersonality=true
+{#
+    TODO: Do we really need AF_UNIX capabilities?
+#}
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictRealtime=true
+
+[Install]
+WantedBy=multi-user.target

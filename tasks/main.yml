@@ -1,6 +1,7 @@
+---
 # Tasks to install and maintain a Calibre instance.
 
-- name: Install Calibre package.
+- name: Install Calibre.
   apt:
     name: calibre
     state: latest
@@ -37,14 +38,10 @@
   loop: "{{ files }}"
   vars:
     files:
-      - {
-        file: "{{ calibre_server_username }}_librarian_ed25519",
+      - file: "{{ calibre_server_username }}_librarian_ed25519"
         mode: "600"
-      }
-      - {
-        file: "{{ calibre_server_username }}_librarian_ed25519.pub",
+      - file: "{{ calibre_server_username }}_librarian_ed25519.pub"
         mode: "644"
-      }
 
 - name: Authorize Calibre user's newly generated SSH key.
   authorized_key:
@@ -61,17 +58,16 @@
     # TODO: Can we validate? `logrotate(8)` has the `-d` switch, but…?
 
 - name: Install Calibre systemd service unit file.
+  register: install_calibre_service
   template:
-    src: calibre.service
-    dest: /etc/systemd/system/calibre.service
+    src: "calibre@.service"
+    dest: "/etc/systemd/system/calibre@{{ item.name }}.service"
     # TODO: Can we get validation to work?
     #validate: "systemd-analyze verify %s"
-  # TODO: Despite being a loop, this only works with one Library.
   loop: "{{ calibre_libraries }}"
+  notify: Restart Calibre.
 
-- name: Start Calibre content server via systemd.
+- name: Reload Systemd daemon.
+  when: install_calibre_service is changed
   systemd:
     daemon_reload: yes
-    name: calibre
-    enabled: yes
-    state: started

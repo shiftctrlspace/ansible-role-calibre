@@ -1,0 +1,8 @@
+---
+# Handlers for Calibre role.
+
+- name: Restart Calibre.
+  service:
+    name: "calibre@{{ item.name }}.service"
+    state: restarted
+  loop: "{{ calibre_libraries }}"
