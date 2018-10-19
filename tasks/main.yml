@@ -2,9 +2,13 @@
 # Tasks to install and maintain a Calibre instance.
 
 - name: Install Calibre.
-  apt:
-    name: calibre
-    state: latest
+  include_tasks: "{{ ansible_os_family | default('Debian') | lower }}.yml"
+
+- name: Create Calibre system user's groups.
+  group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ calibre_server_user_groups }}"
 
 - name: Create Calibre system user.
   user:
@@ -16,9 +20,9 @@
     shell: "/bin/sh"
     generate_ssh_key: yes
     ssh_key_type: ed25519
-    ssh_key_comment: "Librarian"
+    ssh_key_comment: "{{ calibre_server_ssh_key_comment }}"
     ssh_key_file: ".ssh/{{ calibre_server_username }}_librarian_ed25519"
-    #ssh_key_passphrase: "{{ calibre_user_ssh_key_passphrase }}"
+    ssh_key_passphrase: "{{ calibre_server_ssh_key_passphrase }}"
 
 - name: Fetch the Calibre user's SSH keys for future management use.
   fetch:
@@ -32,7 +36,7 @@
   become: no
   local_action:
     module: file
-    path: "~/.ssh/{{ inventory_hostname }}/{{ calibre_server_home_dir }}/.ssh/{{ item.file }}"
+    path: "~/.ssh/{{ inventory_hostname }}{{ calibre_server_home_dir }}/.ssh/{{ item.file }}"
     mode: "{{ item.mode }}"
     owner: "{{ lookup('env', 'USER') }}"
   loop: "{{ files }}"
@@ -49,25 +53,27 @@
     state: present
     user: "{{ calibre_server_username }}"
   vars:
-    public_key_file: "~/.ssh/{{ inventory_hostname }}/{{ calibre_server_home_dir }}/.ssh/{{ calibre_server_username }}_librarian_ed25519.pub"
+    public_key_file: "~/.ssh/{{ inventory_hostname }}{{ calibre_server_home_dir }}/.ssh/{{ calibre_server_username }}_librarian_ed25519.pub"
 
 - name: Install logrotate configuration for Calibre.
   template:
-    src: calibre-server.logrotate.conf
+    src: calibre-server.logrotate.conf.j2
     dest: /etc/logrotate.d/calibre-server
     # TODO: Can we validate? `logrotate(8)` has the `-d` switch, but…?
 
-- name: Install Calibre systemd service unit file.
-  register: install_calibre_service
+- name: Install Calibre systemd service unit template file.
   template:
-    src: "calibre@.service"
+    src: "calibre@.service.j2"
     dest: "/etc/systemd/system/calibre@{{ item.name }}.service"
     # TODO: Can we get validation to work?
     #validate: "systemd-analyze verify %s"
   loop: "{{ calibre_libraries }}"
-  notify: Restart Calibre.
+  notify:
+    - Reload systemd daemon.
+    - Restart Calibre.
 
-- name: Reload Systemd daemon.
-  when: install_calibre_service is changed
-  systemd:
-    daemon_reload: yes
+- name: Enable Calibre Content servers.
+  service:
+    name: "calibre@{{ item.name }}.service"
+    enabled: yes
+  loop: "{{ calibre_libraries }}"

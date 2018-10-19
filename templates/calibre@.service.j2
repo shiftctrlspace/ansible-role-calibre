@@ -1,0 +1,27 @@
+[Unit]
+Description=%I Calibre Content server
+
+[Service]
+User={{ calibre_server_username }}
+Group=nogroup
+UMask=0077
+ExecStart=/usr/bin/calibre-server --with-library="{{ item.library_dir }}"{% if item.listen_port is defined %} --port={{ item.listen_port | int }}{% endif %}{% if item.restriction is defined %} --restriction="{{ item.restriction }}"{% endif %}{{''}}
+Restart=on-failure
+# Extra security precautions
+# Calibre is currently incompatible with `MemoryDenyWriteExecute=true`. :(
+#MemoryDenyWriteExecute=true
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+PrivateUsers=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=full
+LockPersonality=true
+RestrictAddressFamilies=AF_INET
+RestrictRealtime=true
+
+[Install]
+WantedBy=multi-user.target

@@ -11,20 +11,20 @@ calibre_server_username: calibre
 # kind: https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
 calibre_server_home_dir: "/srv/{{ calibre_server_username }}"
 
+# An SSH key passphrase with which to protect the generated SSH key.
+# Leaving this empty will result in an SSH key with no passphrase.
+calibre_server_ssh_key_passphrase:
+
+# A comment with which to more easily identify the generated SSH key.
+calibre_server_ssh_key_comment: "Librarian"
+
 # List of additional user groups to add the Calibre server account to.
 calibre_server_user_groups: []
 
 # Define your Calibre Library folders, and their associated server(s).
 calibre_libraries:
-  - name: main
-    library_dir: "{{ calibre_server_home_dir }}/Library"
-    restriction:
-    listen_port: 8080
-    sync_source: "~/Documents/Calibre Library/" # Trailing slash for "contents of."
-    # TODO: This would be a nice thing.
-    #onions_only: false # Whether Tor is required to see content.
 
-  - name: alternate
-    library_dir: "{{ calibre_server_home_dir }}/Other Library"
-    listen_port: 8081
-    sync_source: "~/Documents/Other Library/" # Trailing slash for "contents of."
+  - name: main
+    library_dir: "{{ calibre_server_home_dir }}/Calibre Library"
+    #restriction:      # Name of a Virtual Library to expose.
+    #listen_port: 8080 # Port that the Content server should bind to.

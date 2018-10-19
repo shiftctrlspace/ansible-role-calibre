@@ -1,6 +1,10 @@
 ---
 # Handlers for Calibre role.
 
+- name: Reload systemd daemon.
+  systemd:
+    daemon_reload: yes
+
 - name: Restart Calibre.
   service:
     name: "calibre@{{ item.name }}.service"
