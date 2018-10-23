@@ -1,0 +1,19 @@
+---
+dependencies: []
+galaxy_info:
+  role_name: calibre
+  author: ShiftCTRL Space
+  description: Install and run highly-configurable Calibre Content servers.
+  license: AGPL-3.0-or-later # SPDX tag from https://spdx.org/licenses/
+  min_ansible_version: 2.7
+  platforms:
+    - name: Raspbian
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - 9
+  galaxy_tags:
+    - Calibre
+    - ebooks
+    - library
