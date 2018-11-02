@@ -1,4 +1,4 @@
-# Shift-CTRL Space: Calibre
+# Shift-CTRL Space: Calibre [![Build Status](https://travis-ci.org/shiftctrlspace/ansible-role-calibre.svg?branch=master)](https://travis-ci.org/shiftctrlspace/ansible-role-calibre)
 
 An [Ansible role](https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html) for managing the [Calibre Content server](https://manual.calibre-ebook.com/generated/en/calibre-server.html) with optional per-library configurations. Notably, this role has been tested with [Raspbian](https://www.raspbian.org/) on [Raspberry Pi](https://www.raspberrypi.org/) hardware. This role's purpose is to make it simple to deploy the Content server that ships with Calibre in a number of different configurations simultaneously.
 

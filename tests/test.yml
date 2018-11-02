@@ -1,0 +1,24 @@
+# This Ansible playbook runs test plays to ensure the role works.
+---
+- name: Test role.
+  hosts: localhost
+
+  pre_tasks:
+    - name: Set up Debian systems.
+      when: ansible_os_family == "Debian"
+      block:
+        - name: Install OpenSSH utilities.
+          package:
+            name: openssh-client
+            state: present
+
+    - name: Set up RedHat systems.
+      when: ansible_os_family == "RedHat"
+      block:
+        - name: Install OpenSSH utilities.
+          package:
+            name: openssh-clients
+            state: present
+
+  roles:
+    - ansible-role-calibre
