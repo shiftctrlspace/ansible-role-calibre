@@ -1,6 +1,5 @@
----
 # Default variables for the Calibre content server.
-
+---
 # The OS system user account name to use for the content server.
 calibre_server_username: calibre
 

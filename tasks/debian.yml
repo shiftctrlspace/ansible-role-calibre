@@ -1,8 +1,7 @@
----
 # Debian-specific Calibre tasks.
-
+---
 - name: Ensure Calibre is installed at latest available version.
   apt:
-    update_cache: yes
+    update_cache: true
     name: calibre
     state: latest

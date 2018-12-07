@@ -14,11 +14,11 @@
   user:
     name: "{{ calibre_server_username }}"
     state: present
-    system: yes
+    system: true
     home: "{{ calibre_server_home_dir }}"
     groups: "{{ calibre_server_user_groups }}"
     shell: "/bin/sh"
-    generate_ssh_key: yes
+    generate_ssh_key: true
     ssh_key_type: ed25519
     ssh_key_comment: "{{ calibre_server_ssh_key_comment }}"
     ssh_key_file: ".ssh/{{ calibre_server_username }}_librarian_ed25519"
@@ -33,7 +33,7 @@
     - "{{ calibre_server_home_dir }}/.ssh/{{ calibre_server_username }}_librarian_ed25519.pub"
 
 - name: Set local filesystem permissions on fetched SSH keys.
-  become: no
+  become: false
   local_action:
     module: file
     path: "~/.ssh/{{ inventory_hostname }}{{ calibre_server_home_dir }}/.ssh/{{ item.file }}"
@@ -45,7 +45,7 @@
     - file: "{{ calibre_server_username }}_librarian_ed25519.pub"
       mode: "644"
 
-- name: Authorize Calibre user's newly generated SSH key.
+- name: Authorize Calibre user's SSH key.
   authorized_key:
     key: "{{ lookup('file', lookup('vars', 'public_key_file')) }}"
     state: present
@@ -53,11 +53,26 @@
   vars:
     public_key_file: "~/.ssh/{{ inventory_hostname }}{{ calibre_server_home_dir }}/.ssh/{{ calibre_server_username }}_librarian_ed25519.pub"
 
-- name: Install logrotate configuration for Calibre.
+- name: Install logrotate configuration.
   template:
     src: calibre-server.logrotate.conf.j2
     dest: /etc/logrotate.d/calibre-server
     # TODO: Can we validate? `logrotate(8)` has the `-d` switch, but…?
+
+- name: Confine Calibre Content server with AppArmor.
+  when:
+    - ansible_apparmor is defined
+    - ansible_apparmor.status | default('disabled') == 'enabled'
+  block:
+    - name: Install AppArmor profile.
+      register: install_aa_calibre_profile
+      template:
+        src: etc/apparmor.d/usr.bin.calibre-server.j2
+        dest: /etc/apparmor.d/usr.bin.calibre-server
+    - name: Load and enforce AppArmor profile.
+      command: "apparmor_parser --replace /etc/apparmor.d/usr.bin.calibre-server"
+      changed_when: install_aa_calibre_profile is changed
+      notify: Restart Calibre.
 
 - name: Install Calibre systemd service unit template file.
   template:
@@ -73,5 +88,5 @@
 - name: Enable Calibre Content servers.
   service:
     name: "calibre@{{ item.name }}.service"
-    enabled: yes
+    enabled: true
   loop: "{{ calibre_libraries }}"
