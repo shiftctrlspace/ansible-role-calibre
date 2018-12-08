@@ -60,19 +60,7 @@
     # TODO: Can we validate? `logrotate(8)` has the `-d` switch, but…?
 
 - name: Confine Calibre Content server with AppArmor.
-  when:
-    - ansible_apparmor is defined
-    - ansible_apparmor.status | default('disabled') == 'enabled'
-  block:
-    - name: Install AppArmor profile.
-      register: install_aa_calibre_profile
-      template:
-        src: etc/apparmor.d/usr.bin.calibre-server.j2
-        dest: /etc/apparmor.d/usr.bin.calibre-server
-    - name: Load and enforce AppArmor profile.
-      command: "apparmor_parser --replace /etc/apparmor.d/usr.bin.calibre-server"
-      changed_when: install_aa_calibre_profile is changed
-      notify: Restart Calibre.
+  import_tasks: apparmor.yml
 
 - name: Install Calibre systemd service unit template file.
   template:

@@ -22,9 +22,7 @@ ProtectSystem=full
 LockPersonality=true
 RestrictAddressFamilies=AF_INET
 RestrictRealtime=true
-{% if ansible_apparmor is defined and ansible_apparmor.status | default('disabled') == 'enabled' %}
 AppArmorProfile=/usr/bin/calibre-server
-{% endif %}
 
 [Install]
 WantedBy=multi-user.target

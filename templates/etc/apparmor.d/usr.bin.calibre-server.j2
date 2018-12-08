@@ -14,10 +14,10 @@
     #include <abstractions/nameservice>
     #include <abstractions/python>
     
-    @{PROC}/*/auxv r,
-    @{PROC}/*/mounts r,
-    @{PROC}/*/status r,
-    @{PROC}/*/task/*/comm rw,
+    @{PROC}/@{pid}/auxv r,
+    @{PROC}/@{pid}/mounts r,
+    @{PROC}/@{pid}/status r,
+    @{PROC}/@{pid}/task/@{pid}/comm rw,
     
     /sbin/ldconfig rix,
 

@@ -1,0 +1,23 @@
+---
+- name: Ensure AppArmor directories exist.
+  file:
+    path: /etc/apparmor.d
+    state: directory
+    owner: root
+    group: root
+    mode: "755"
+
+- name: Install AppArmor profile.
+  register: install_aa_calibre_profile
+  template:
+    src: etc/apparmor.d/usr.bin.calibre-server.j2
+    dest: /etc/apparmor.d/usr.bin.calibre-server
+
+- name: Load and enforce AppArmor profile.
+  when:
+    - ansible_apparmor is defined
+    - ansible_apparmor.status | default('disabled') == 'enabled'
+  command: "apparmor_parser --replace /etc/apparmor.d/usr.bin.calibre-server"
+  changed_when: install_aa_calibre_profile is changed
+  notify: Restart Calibre.
+
