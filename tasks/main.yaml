@@ -2,7 +2,7 @@
 # Tasks to install and maintain a Calibre instance.
 
 - name: Install Calibre.
-  include_tasks: "{{ ansible_os_family | default('Debian') | lower }}.yml"
+  include_tasks: "{{ ansible_os_family | default('Debian') | lower }}.yaml"
 
 - name: Create Calibre system user's groups.
   group:
@@ -60,7 +60,7 @@
     # TODO: Can we validate? `logrotate(8)` has the `-d` switch, but…?
 
 - name: Confine Calibre Content server with AppArmor.
-  import_tasks: apparmor.yml
+  import_tasks: apparmor.yaml
 
 - name: Install Calibre systemd service unit template file.
   template:

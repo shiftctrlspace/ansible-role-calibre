@@ -12,7 +12,7 @@ You can host multiple Libraries (and thus server processes) on a single Ansible-
 
 ### Calibre Library configuration variables
 
-Of this role's [default variables](defaults/main.yml), which you can override using any of [Ansible's variable precedence rules](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable), one of the most important is the `calibre_libraries` list. It describes the Calibre Libraries you want deployed on a given managed host. Each item in the list is a dictionary with the following keys:
+Of this role's [default variables](defaults/main.yaml), which you can override using any of [Ansible's variable precedence rules](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html#variable-precedence-where-should-i-put-a-variable), one of the most important is the `calibre_libraries` list. It describes the Calibre Libraries you want deployed on a given managed host. Each item in the list is a dictionary with the following keys:
 
 * `name`: Name with which to manage the Calibre server for a given library. This becomes the systemd instance name. This key is required.
 * `library_dir`: Path to the Calibre Library from which to serve content. This key is required.
@@ -22,14 +22,14 @@ Of this role's [default variables](defaults/main.yml), which you can override us
 It may help to see a few examples:
 
 1. Single Library running on default Calibre content server port (`8080`):
-    ```yml
+    ```yaml
     calibre_libraries:
       - name: main
         library_dir: "{{ calibre_server_home_dir }}/Library"
     ```
     The above will create a templated systemd service unit called `calibre@main.service` that, when active, will expose the Calibre Library at `{{ calibre_server_home_dir }}/Library` to the whole LAN.
 1. Two content servers serving content from the same Library. The `main` process is bound to the default HTTP port (`80`) and restricts viewing to the "`Main Library`" virtual library, while another process serves an restricted view of library on the standard HTTP alternative port.
-    ```yml
+    ```yaml
     calibre_libraries:
       - name: main
         library_dir: "{{ calibre_server_home_dir }}/Library"
