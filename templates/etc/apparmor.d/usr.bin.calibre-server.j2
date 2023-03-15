@@ -1,34 +1,35 @@
 # AppArmor profile for confining Calibre Content server.
 # {{ ansible_managed }}
 
-#include <tunables/global>
-
 @{CALIBRE_HOME} = {{ calibre_server_home_dir }}
 @{CALIBRE_LIBRARY} = ''
 {% for library in calibre_libraries %}
 @{CALIBRE_LIBRARY} += "{{ library.library_dir }}"
 {% endfor %}
 
+#include <tunables/global>
+
 /usr/bin/calibre-server {
     #include <abstractions/base>
     #include <abstractions/nameservice>
     #include <abstractions/python>
+    #include <abstractions/totem>
     
     @{PROC}/@{pid}/auxv r,
     @{PROC}/@{pid}/mounts r,
     @{PROC}/@{pid}/status r,
     @{PROC}/@{pid}/task/@{pid}/comm rw,
     
-    /sbin/ldconfig rix,
-
     /etc/mime.types r,
+
+    /sbin/ldconfig rix,
     
     /tmp/* rw,
     /tmp/calibre_*/ rw,
     /tmp/calibre_*/** rw,
     
     /usr/bin/calibre-server r,
-    /usr/bin/python2.7 ix,
+
     /usr/lib/calibre/calibre/**.pyc rw,
     /usr/lib/calibre/calibre/plugins/icu.so mr,
     /usr/lib/calibre/calibre/plugins/imageops.so mr,
